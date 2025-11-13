@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { sidebarMenu } from './constants/SidebarMenu';
+
 // ...existing code...
 function App() {
 

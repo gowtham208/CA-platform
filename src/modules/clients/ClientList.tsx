@@ -137,11 +137,6 @@ export const ClientList: React.FC = () => {
       flex: 1.5,
     },
     { 
-      field: 'status', 
-      headerName: 'Status', 
-      width: 100 
-    },
-    { 
       field: 'assignedTo', 
       headerName: 'Assigned To', 
       width: 130 

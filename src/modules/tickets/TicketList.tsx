@@ -1,56 +1,65 @@
 // src/components/modules/tickets/TicketList.tsx
 import React, { useState } from 'react';
-import { Box, Button, Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Chip } from '@mui/material';
 import { GenericGrid } from '../../components/common/GenericGrid';
 import { TicketForm } from './TicketForm';
-import type { Ticket } from './types/Ticket';
+import type { Ticket, Attachment } from './types/Ticket';
+import { mockTickets } from '../../constants/mockdata';
 
 export const TicketList: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
-  // Mock data matching your Ticket interface
-  const rows: Ticket[] = [
-    { 
-      id: '1', 
-      title: 'GST Filing - ABC Corp', 
-      clientId: '1',
-      serviceId: '1',
-      activityId: '1',
-      deadline: new Date('2024-02-15'),
-      priority: 'high',
-      status: 'open',
-      assignedTo: 'John Doe',
-      createdBy: 'admin',
-      createdAt: new Date('2024-01-20')
-    },
-    { 
-      id: '2', 
-      title: 'Income Tax Return - XYZ Ltd', 
-      clientId: '2',
-      serviceId: '2',
-      activityId: '3',
-      deadline: new Date('2024-02-20'),
-      priority: 'medium',
-      status: 'in-progress',
-      assignedTo: 'Jane Smith',
-      createdBy: 'admin',
-      createdAt: new Date('2024-01-18')
-    },
-    { 
-      id: '3', 
-      title: 'Audit Report - DEF Enterprises', 
-      clientId: '3',
-      serviceId: '3',
-      activityId: '5',
-      deadline: new Date('2024-01-30'),
-      priority: 'low',
-      status: 'completed',
-      assignedTo: 'Mark Lee',
-      createdBy: 'admin',
-      createdAt: new Date('2024-01-15')
-    },
-  ];
+  // Debug: Check what's in mockTickets
+  console.log('Mock Tickets:', mockTickets);
+
+  // Process dates to ensure they are valid Date objects
+  const rows: Ticket[] = mockTickets.map(ticket => {
+    // Handle deadline
+    let deadlineDate: Date;
+    if (ticket.deadline instanceof Date) {
+      deadlineDate = ticket.deadline;
+    } else if (typeof ticket.deadline === 'string') {
+      deadlineDate = new Date(ticket.deadline);
+    } else {
+      deadlineDate = new Date(); // fallback
+    }
+
+    // Handle createdAt
+    let createdDate: Date;
+    if (ticket.createdAt instanceof Date) {
+      createdDate = ticket.createdAt;
+    } else if (typeof ticket.createdAt === 'string') {
+      createdDate = new Date(ticket.createdAt);
+    } else {
+      createdDate = new Date(); // fallback
+    }
+
+    return {
+      ...ticket,
+      deadline: deadlineDate,
+      createdAt: createdDate
+    };
+  });
+
+  // Improved date formatter
+  const formatDate = (date: any): string => {
+    if (!date) return 'N/A';
+    
+    try {
+      const dateObj = date instanceof Date ? date : new Date(date);
+      return isNaN(dateObj.getTime()) 
+        ? 'Invalid Date' 
+        : dateObj.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+    } catch (error) {
+      console.error('Date formatting error:', error, date);
+      return 'Invalid Date';
+    }
+  };
 
   const columns = [
     { field: 'title', headerName: 'Ticket Title', flex: 2 },
@@ -111,8 +120,34 @@ export const TicketList: React.FC = () => {
       field: 'deadline', 
       headerName: 'Deadline', 
       width: 120,
-      valueFormatter: (params: any) => 
-        new Date(params.value).toLocaleDateString()
+      valueFormatter: (params: any) => formatDate(params.value)
+    },
+    { 
+      field: 'attachments', 
+      headerName: 'Documents', 
+      width: 150,
+      renderCell: (params: any) => {
+        const attachments: Attachment[] = params.value || [];
+        if (attachments.length === 0) {
+          return <Chip label="No files" size="small" variant="outlined" />;
+        }
+        return (
+          <Box>
+            <Chip 
+              label={`${attachments.length} file${attachments.length > 1 ? 's' : ''}`}
+              size="small"
+              color="primary"
+              variant="outlined"
+            />
+          </Box>
+        );
+      }
+    },
+    { 
+      field: 'createdAt', 
+      headerName: 'Created', 
+      width: 120,
+      valueFormatter: (params: any) => formatDate(params.value)
     },
   ];
 
@@ -127,7 +162,10 @@ export const TicketList: React.FC = () => {
   };
 
   const handleDelete = (row: Ticket) => {
-    alert(`Delete ticket: ${row.title}`);
+    if (window.confirm(`Are you sure you want to delete ticket: ${row.title}?`)) {
+      console.log('Delete ticket:', row.id);
+      // Add your delete logic here
+    }
   };
 
   const handleClose = () => {

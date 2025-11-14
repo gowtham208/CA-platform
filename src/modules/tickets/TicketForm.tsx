@@ -7,44 +7,56 @@ import {
   Button,
   Typography,
   Paper,
-  Grid
+  Grid,
+  Chip
 } from '@mui/material';
+import { Delete, AttachFile } from '@mui/icons-material';
 import type { Ticket } from './types/Ticket';
+
+import {mockClients,mockServices,mockActivities,mockTeamMembers} from '../../constants/mockdata';
 
 interface TicketFormProps {
   ticket?: Ticket;
   onSubmit?: (ticket: Omit<Ticket, 'id'>) => void;
 }
 
-// Mock data for dropdowns
-const mockClients = [
-  { id: '1', name: 'ABC Pvt Ltd' },
-  { id: '2', name: 'XYZ Associates' },
-  { id: '3', name: 'DEF Enterprises' },
-];
+// // Mock data for dropdowns
+// const mockClients = [
+//   { id: '1', name: 'ABC Pvt Ltd' },
+//   { id: '2', name: 'XYZ Associates' },
+//   { id: '3', name: 'DEF Enterprises' },
+// ];
 
-const mockServices = [
-  { id: '1', name: 'GST Filing' },
-  { id: '2', name: 'Income Tax' },
-  { id: '3', name: 'Audit' },
-  { id: '4', name: 'ROC Filing' },
-];
+// const mockServices = [
+//   { id: '1', name: 'GST Filing' },
+//   { id: '2', name: 'Income Tax' },
+//   { id: '3', name: 'Audit' },
+//   { id: '4', name: 'ROC Filing' },
+// ];
 
-const mockActivities = [
-  { id: '1', name: 'GST 3B Filing', serviceId: '1' },
-  { id: '2', name: 'GST 1 Filing', serviceId: '1' },
-  { id: '3', name: 'ITR Filing - Individual', serviceId: '2' },
-  { id: '4', name: 'ITR Filing - Corporate', serviceId: '2' },
-  { id: '5', name: 'Statutory Audit', serviceId: '3' },
-  { id: '6', name: 'Tax Audit', serviceId: '3' },
-];
+// const mockActivities = [
+//   { id: '1', name: 'GST 3B Filing', serviceId: '1' },
+//   { id: '2', name: 'GST 1 Filing', serviceId: '1' },
+//   { id: '3', name: 'ITR Filing - Individual', serviceId: '2' },
+//   { id: '4', name: 'ITR Filing - Corporate', serviceId: '2' },
+//   { id: '5', name: 'Statutory Audit', serviceId: '3' },
+//   { id: '6', name: 'Tax Audit', serviceId: '3' },
+// ];
 
-const mockTeamMembers = [
-  'John Doe',
-  'Jane Smith',
-  'Mark Lee',
-  'Sarah Wilson',
-];
+// const mockTeamMembers = [
+//   'John Doe',
+//   'Jane Smith',
+//   'Mark Lee',
+//   'Sarah Wilson',
+// ];
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  file: File;
+}
 
 export const TicketForm: React.FC<TicketFormProps> = ({
   ticket,
@@ -61,6 +73,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({
     status: ticket?.status || 'open',
   });
 
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [filteredActivities, setFilteredActivities] = useState(
     mockActivities.filter(activity => activity.serviceId === formData.serviceId)
   );
@@ -83,6 +96,41 @@ export const TicketForm: React.FC<TicketFormProps> = ({
     });
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = [];
+    
+    Array.from(files).forEach((file) => {
+      const fileId = Math.random().toString(36).substring(2, 9);
+      newFiles.push({
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file
+      });
+    });
+
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+    
+    // Clear the input value to allow uploading the same file again
+    e.target.value = '';
+  };
+
+  const handleRemoveFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -91,6 +139,13 @@ export const TicketForm: React.FC<TicketFormProps> = ({
       deadline: new Date(formData.deadline),
       createdBy: ticket?.createdBy || 'current-user',
       createdAt: ticket?.createdAt || new Date(),
+      attachments: uploadedFiles.map(file => ({
+        id: file.id,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url: URL.createObjectURL(file.file) // In real app, this would be the uploaded file URL
+      }))
     };
     
     if (onSubmit) {
@@ -98,6 +153,7 @@ export const TicketForm: React.FC<TicketFormProps> = ({
     }
     
     console.log('Submitted Ticket:', ticketData);
+    console.log('Uploaded Files:', uploadedFiles);
   };
 
   // Get activities filtered by selected service
@@ -282,6 +338,51 @@ export const TicketForm: React.FC<TicketFormProps> = ({
                 shrink: true,
               }}
             />
+          </Grid>
+
+          {/* Document Upload */}
+          <Grid xs={12}>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+                Attach Documents
+              </Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<AttachFile />}
+                sx={{ mb: 2 }}
+              >
+                Upload Files
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                />
+              </Button>
+              
+              {/* Uploaded Files List */}
+              {uploadedFiles.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Uploaded files ({uploadedFiles.length}):
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {uploadedFiles.map((file) => (
+                      <Chip
+                        key={file.id}
+                        label={`${file.name} (${formatFileSize(file.size)})`}
+                        onDelete={() => handleRemoveFile(file.id)}
+                        deleteIcon={<Delete />}
+                        variant="outlined"
+                        size="small"
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
+            </Box>
           </Grid>
 
           {/* Action Buttons */}

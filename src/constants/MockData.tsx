@@ -295,98 +295,72 @@ export const mockDocuments: Document[] = [
   },
 ];
 
-// Mock Tickets Data
+// src/constants/mockdata.ts
 export const mockTickets: Ticket[] = [
-  {
-    id: '1',
-    title: 'GST 3B Filing for January 2024',
+  { 
+    id: '1', 
+    title: 'GST Filing - ABC Corp', 
     clientId: '1',
     serviceId: '1',
     activityId: '1',
-    deadline: new Date('2024-02-20'),
+    deadline: new Date('2024-02-15'), // Make sure it's a Date object
     priority: 'high',
     status: 'open',
     assignedTo: 'John Doe',
     createdBy: 'admin',
-    createdAt: new Date('2024-01-28'),
+    createdAt: new Date('2024-01-20'), // Make sure it's a Date object
+    attachments: [
+      {
+        id: 'file1',
+        name: 'gst_document.pdf',
+        size: 1024000,
+        type: 'application/pdf',
+        url: '/documents/gst_document.pdf'
+      }
+    ]
   },
-  {
-    id: '2',
-    title: 'Income Tax Return FY 2023-24',
-    clientId: '3',
+  { 
+    id: '2', 
+    title: 'Income Tax Return - XYZ Ltd', 
+    clientId: '2',
     serviceId: '2',
-    activityId: '4',
-    deadline: new Date('2024-07-31'),
+    activityId: '3',
+    deadline: new Date('2024-02-20'),
     priority: 'medium',
     status: 'in-progress',
     assignedTo: 'Jane Smith',
     createdBy: 'admin',
-    createdAt: new Date('2024-01-25'),
+    createdAt: new Date('2024-01-18'),
+    attachments: []
   },
-  {
-    id: '3',
-    title: 'Statutory Audit FY 2023-24',
-    clientId: '2',
+  { 
+    id: '3', 
+    title: 'Audit Report - DEF Enterprises', 
+    clientId: '3',
     serviceId: '3',
-    activityId: '7',
-    deadline: new Date('2024-03-15'),
-    priority: 'high',
-    status: 'open',
+    activityId: '5',
+    deadline: new Date('2024-01-30'),
+    priority: 'low',
+    status: 'completed',
     assignedTo: 'Mark Lee',
     createdBy: 'admin',
-    createdAt: new Date('2024-01-20'),
-  },
-  {
-    id: '4',
-    title: 'Annual ROC Filing FY 2023-24',
-    clientId: '5',
-    serviceId: '4',
-    activityId: '9',
-    deadline: new Date('2024-04-30'),
-    priority: 'medium',
-    status: 'completed',
-    assignedTo: 'Sarah Wilson',
-    createdBy: 'admin',
     createdAt: new Date('2024-01-15'),
-  },
-  {
-    id: '5',
-    title: 'Monthly Bookkeeping - January 2024',
-    clientId: '1',
-    serviceId: '5',
-    activityId: '11',
-    deadline: new Date('2024-02-07'),
-    priority: 'low',
-    status: 'overdue',
-    assignedTo: 'Mike Johnson',
-    createdBy: 'admin',
-    createdAt: new Date('2024-01-30'),
-  },
-  {
-    id: '6',
-    title: 'TDS Return Q3 FY 2023-24',
-    clientId: '4',
-    serviceId: '2',
-    activityId: '6',
-    deadline: new Date('2024-01-31'),
-    priority: 'high',
-    status: 'completed',
-    assignedTo: 'Jane Smith',
-    createdBy: 'admin',
-    createdAt: new Date('2024-01-10'),
-  },
-  {
-    id: '7',
-    title: 'GST 1 Filing for January 2024',
-    clientId: '2',
-    serviceId: '1',
-    activityId: '2',
-    deadline: new Date('2024-02-11'),
-    priority: 'medium',
-    status: 'in-progress',
-    assignedTo: 'John Doe',
-    createdBy: 'admin',
-    createdAt: new Date('2024-01-29'),
+    attachments: [
+      {
+        id: 'file2',
+        name: 'audit_report.docx',
+        size: 2048000,
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        url: '/documents/audit_report.docx'
+      },
+      {
+        id: 'file3',
+        name: 'financials.xlsx',
+        size: 1536000,
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        url: '/documents/financials.xlsx'
+      }
+    ]
   },
 ];
 

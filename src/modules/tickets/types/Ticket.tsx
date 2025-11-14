@@ -1,3 +1,12 @@
+// src/components/modules/tickets/types/Ticket.ts
+export interface Attachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+}
+
 export interface Ticket {
   id: string;
   title: string;
@@ -10,4 +19,5 @@ export interface Ticket {
   assignedTo: string;
   createdBy: string;
   createdAt: Date;
+  attachments?: Attachment[]; // Make it optional
 }
